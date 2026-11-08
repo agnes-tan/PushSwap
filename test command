@@ -1,0 +1,117 @@
+
+make fclean
+make
+norminette
+
+
+
+shuf -i 0-9999 -n 500 > args.txt
+./push_swap --bench $(cat args.txt) 2> bench.txt | ./checker_linux $(cat args.txt)
+
+
+./push_swap --bench --adaptive 4 67 3 87 23 \
+    > ops.txt 2> bench.txt
+    
+ 
+
+shuf -i 0-9999 -n 500 > args.txt ; ./push_swap $(cat args.txt) | wc -l
+ 
+
+
+ ARG="4 67 3 87 23"; ./push_swap --complex $ARG | ./checker_linux $ARG
+ 
+ 
+
+ ARG="4 67 3 87 23"; ./push_swap --bench --adaptive $ARG 2>bench.txt | ./checker_linux $ARG
+  
+ 
+
+ valgrind --leak-check=full --show-leak-kinds=all \
+    --error-exitcode=1 \
+    ./push_swap --adaptive 5 4 3 2 1
+    
+
+
+./push_swap 1 2 2
+./push_swap 1 abc 3
+./push_swap 2147483648
+./push_swap
+./push_swap 1 2 3 4 5
+
+python3 tests/test_push_swap.py
+python3 tests/test_complex_bound.py
+
+
+make re
+
+ARG=($(shuf -i 0-9999 -n 100))
+
+echo "Numbers generated: ${#ARG[@]}"
+
+for strategy in simple medium complex adaptive; do
+    echo "===== $strategy ====="
+
+    ./push_swap --$strategy --bench "${ARG[@]}" \
+        > "${strategy}_ops.txt" \
+        2> "${strategy}_bench.txt"
+
+    ./checker_linux "${ARG[@]}" < "${strategy}_ops.txt"
+done
+    
+
+
+
+    
+make re
+
+ARG=($(shuf -i 0-9999 -n 500))
+
+for strategy in simple medium complex adaptive; do
+    echo "===== $strategy ====="
+
+    ./push_swap --$strategy --bench "${ARG[@]}" \
+        > "${strategy}_ops.txt" \
+        2> "${strategy}_bench.txt"
+
+    ./checker_linux "${ARG[@]}" < "${strategy}_ops.txt"
+    grep "operations:" "${strategy}_bench.txt"
+done
+
+
+
+
+
+ARG=($(shuf -i 0-9999 -n 500))
+
+./push_swap --medium "${ARG[@]}" > ops.txt
+./checker_linux "${ARG[@]}" < ops.txt
+wc -l < ops.txt
+
+
+
+
+
+
+ARG=($(shuf -i 0-9999 -n 500))
+
+./push_swap --adaptive "${ARG[@]}" > ops.txt
+./checker_linux "${ARG[@]}" < ops.txt
+wc -l < ops.txt
+
+
+
+
+
+
+ARG=($(shuf -i 0-9999 -n 500))
+
+./push_swap --complex "${ARG[@]}" > ops.txt
+./checker_linux "${ARG[@]}" < ops.txt
+wc -l < ops.txt
+
+
+
+
+
+
+Repeat with --complex and --adaptive, then test 100 numbers.
